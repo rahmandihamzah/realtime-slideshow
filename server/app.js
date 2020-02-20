@@ -4,12 +4,23 @@ if (process.env.NODE_ENV === 'development') {
 
 const express = require('express')
 const app = express()
-const http = require('http')
-const io = require('socket.io')
+const http = require('http').createServer(app)
+const port = Number(process.env.PORT)
+const io = require('socket.io')(http)
 const cors = require('cors')
 
 app.use(cors())
 
-const server = http.createServer(app)
+io.on('connection', (socket) => {
+  console.log('connect')
+
+  socket.on('slideStart', (payload) => {
+    io.emit('slideNo', payload)
+  })
+})
+
+http.listen(port, () => {
+  console.log('listening on', port)
+})
 
 module.exports = app
